@@ -12,8 +12,6 @@ open GenericSort
   http://research.microsoft.com/en-us/um/people/leino/papers/krml241.pdf
 *)
 
-type stable (#a:eqtype) (l1:list a) (l2:list a{permutation l1 l2}) (key:(a -> Tot int)) =
-  forall x y. ((appears_before x y l1 /\ key y = key x) ==> appears_before x y l2)
 
 (**
   filterEq returns the elements of a list that have the same key as n.
@@ -36,6 +34,11 @@ let rec filter_eq_contains #a k key xs =
     if key hd = k then
       filter_eq_contains k key tl
     else filter_eq_contains k key tl
+
+val is_stable: x: 'a -> list 'a -> list 'a -> ('a -> Tot int) -> Tot bool
+let is_stable x l1 l2 k = (filter_eq x k l1 = filter_eq x k l2)
+
+type stable (#a:Type) (l1:list a) (l2:list a) = forall x k. is_stable x l1 l2 k
 
 (*)
 val filter_eq_ordered: #a:eqtype -> key:(a -> Tot int) -> (xs: list a) ->

@@ -4,6 +4,7 @@
 **)
 module GenericSort
 open FStar.List.Tot
+open FStar.ListProperties
 
 (**
   key is a function that will appear a lot here,
@@ -12,23 +13,9 @@ open FStar.List.Tot
   #a and a appears where a is required to support equality.
 **)
 
-
 (**
   Checks that a list is sorted.
 **)
-
-val appears_before: #a:eqtype -> before:a -> after:a -> ls: list a -> Tot bool
-let rec appears_before #a b4 aft ls =
-  match ls with
-  | _ | [_] -> false
-  | hd::tl ->
-    if hd = b4 then mem aft tl
-    else appears_before b4 aft tl
-
-type sort (#a:eqtype) (f:(list a -> k:(a -> Tot int) -> Tot (list a))) =
-  forall x y k zs. (mem x zs <==> mem x (f zs k)
-    /\ length zs = length (f zs k)
-    /\ (k x <= k y /\ mem x zs /\ mem y zs) <==> appears_before x y (f zs k))
 
 val sorted: list 'a -> key:('a -> Tot int) -> Tot bool
 let rec sorted l key = match l with

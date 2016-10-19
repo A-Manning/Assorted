@@ -44,3 +44,12 @@ match (l1, l2) with
   | h1::tl1, h2::tl2 -> if k h1 <= k h2
                           then (merge'_sorted tl1 l2 k)
                         else (merge'_sorted l1 tl2 k)
+
+let merge = merge'
+
+val mergesort: #a:eqtype -> l0:list a -> k:(a -> Tot int) -> Tot (list a)
+let rec mergesort #a l0 k =
+  match l0 with
+  | [] | [_] -> l0
+  | a::b::tl -> if k a <= k b then merge (a::[b]) (mergesort tl k) k
+                else merge (b::[a]) (mergesort tl k) k
