@@ -7,13 +7,6 @@ open FStar.List.Tot
 open FStar.ListProperties
 
 (**
-  key is a function that will appear a lot here,
-  as will 'a, a, #a, which are generic types.
-  key is a function on 'a that returns an integer.
-  #a and a appears where a is required to support equality.
-**)
-
-(**
   Checks that a list is sorted.
 **)
 
@@ -44,10 +37,18 @@ let rec sorted_smaller #a x y l key = match l with
     | [] -> ()
     | z::zs -> if key z = key y then () else sorted_smaller x y zs key
 
-val cons_sorted: #a:eqtype -> x:a -> l:list a{is_Cons l} -> key:(a -> Tot int)
-  -> Lemma(requires sorted l key /\ key x <= key (hd l))
-          (ensures sorted (x::l) key)
-let cons_sorted #a x l key = ()
+val sorted_tl: #a:eqtype -> l:list a{is_Cons l} -> k:(a -> Tot int) ->
+  Lemma(requires (sorted l k))
+  (ensures(sorted (Cons.tl l) k))
+let rec sorted_tl #a l k =
+  match l with
+  | [_] -> ()
+  | a::b::xs -> sorted_tl (b::xs) k
+
+val sorted_lt:  #a:eqtype -> l:list a{is_Cons l} -> k:(a -> Tot int) ->
+  Lemma(requires (sorted l k))
+  (ensures (forall x y. (x < k (hd l) /\ k y = x) ==> (mem y l = false)))
+let sorted_lt #a l k = ()
 
 type permutation (#a:Type{hasEq a}) (l1:list a) (l2:list a) =
     length l1 = length l2 /\ (forall n. mem n l1 = mem n l2)
